@@ -5,13 +5,10 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require('./../assets/Flashcard_transparent.png')} style={styles.logo} />
-        <Text style={styles.title}>Flashcard</Text>
-        <Text style={styles.tagline}>Learn Faster, Remember Longer!</Text>
       </View>
       <TouchableOpacity
         style={styles.googleButton}
       >
-        <Image source={{ uri: 'https://img.icons8.com/color/48/000000/google-logo.png' }} style={styles.googleIcon} />
         <Text style={styles.buttonText}>Login with Google</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -21,7 +18,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#393E46',
+    backgroundColor: '#EEEEEE',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -30,8 +27,8 @@ const styles = StyleSheet.create({
     marginBottom: 40
   },
   logo: {
-    height:200,
-    width:200,
+    height:400,
+    width:300,
     marginBottom: 20,
   },
   title: {
