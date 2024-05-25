@@ -1,20 +1,50 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {View, Text, SafeAreaView} from 'react-native'
+import SplashScreen from './Components/SplashScreen'
 
-export default function App() {
+//navigation
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Home from './Components/Home';
+import LoginScreen from './Components/LoginScreen';
+const Stack = createStackNavigator();
+
+function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName='SplashScreen'
+      screenOptions={{
+        headerMode: 'screen',
+        headerTintColor: 'white',
+        headerStyle: { backgroundColor:'#222831'},
+      }}>
+        <Stack.Screen
+          name='SplashScreen'
+          component={SplashScreen}
+          options={{
+            headerShown:false
+          }}
+        />
+        <Stack.Screen
+          name='LoginScreen'
+          component={LoginScreen}
+          options={{
+            headerShown:false,
+            headerBackTitleVisible:false,
+            headerLeft:null
+          }}
+        />
+        <Stack.Screen
+          name='Home'
+          component={Home}
+          options={{
+            headerShown:false,
+            headerBackTitleVisible:false,
+            headerLeft:null
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App
