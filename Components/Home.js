@@ -1,64 +1,81 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text, SafeAreaView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, Text, SafeAreaView, ActivityIndicator, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { Audio } from 'expo-av';
 export default function App() {
-    const [word, setWord] = useState('');
-    const [meaning, setMeaning] = useState('');
-    const [pronunciation, setPronunciation] = useState('');
-    const [example, setExample] = useState('');
-    const [audio, setAudio] = useState('');
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [details, setDetails] = useState({
+        word: '',
+        meaning: [],
+        pronunciation: '',
+        example: [],
+        audio: '',
+        error: ''
+    });
 
     const fetchMeaningAndPronunciation = async () => {
-        if (!word.trim()) {
-            setError('Please enter a word.');
-            setMeaning('');
-            setPronunciation('');
-            setExample('');
-            setAudio('');
+        if (!details.word.trim()) {
+            setDetails({ ...details, error: 'Please enter a word.' });
             return;
         }
 
         setIsLoading(true);
         try {
-            const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-            if (response.status === 200 && response.data.length > 0) {
-                const data = response.data[0];
-                const meaningData = data.meanings[0].definitions[0];
-                setMeaning(meaningData.definition);
-                setPronunciation(data.phonetics[0]?.text || 'Pronunciation not available');
-                setExample(meaningData.example || 'Example not available');
-                setAudio(data.phonetics[1]?.audio || '');
-                setError('');
+            console.log(Config.BACKEND_URL)
+            const response = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/generate/${details.word}`);
+            console.log(response)
+            if (response.status === 200) {
+                const data = response.data.data;
+                const meanings = data.meaning
+                const examples = data.example
+                const pronunciation = data?.phonetics || 'Pronunciation not available';
+                const audio = data?.audio || '';
+
+                setDetails({
+                    ...details,
+                    meaning: meanings,
+                    pronunciation,
+                    example: examples,
+                    audio,
+                    error: ''
+                });
             } else {
-                setError('Word not found.');
-                setMeaning('');
-                setPronunciation('');
-                setExample('');
-                setAudio('');
+                setDetails({
+                    ...details,
+                    word: '',
+                    meaning: [],
+                    pronunciation: '',
+                    example: [],
+                    audio: '',
+                    error: 'Word not found.'
+                });
             }
         } catch (error) {
             console.log(error)
-            setError('Error fetching the word meaning.');
-            setMeaning('');
-            setPronunciation('');
-            setExample('');
-            setAudio('');
+            setDetails({
+                ...details,
+                word: '',
+                meaning: [],
+                pronunciation: '',
+                example: [],
+                audio: '',
+                error: 'Error fetching the word meaning.'
+            });
         } finally {
             setIsLoading(false);
         }
     };
 
     const clearInput = () => {
-        setWord('');
-        setMeaning('');
-        setPronunciation('');
-        setExample('');
-        setAudio('');
-        setError('');
+        setDetails({
+            word: '',
+            meaning: [],
+            pronunciation: '',
+            example: [],
+            audio: '',
+            error: ''
+        });
     };
 
     const playAudio = async (audioUri) => {
@@ -71,6 +88,11 @@ export default function App() {
         }
     };
 
+    const handleWordChange = (word) => {
+        clearInput();
+        setDetails({ ...details, word });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>BrightCard</Text>
@@ -79,8 +101,8 @@ export default function App() {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter a word"
-                        value={word}
-                        onChangeText={setWord}
+                        value={details.word}
+                        onChangeText={handleWordChange}
                     />
                     <TouchableOpacity style={styles.clearButton} onPress={clearInput}>
                         <Icon name="close" size={20} color="#FFFFFF" />
@@ -97,23 +119,33 @@ export default function App() {
                     )}
                 </TouchableOpacity>
 
-                {meaning ? (
+                {details.meaning.length > 0 && (
                     <View style={styles.flashcard}>
-                        <Text style={styles.flashcardTitle}>{word}</Text>
-                        <Text style={styles.flashcardText}>Meaning: {meaning}</Text>
-                        <Text style={styles.flashcardText}>Pronunciation: {pronunciation}</Text>
-                        <Text style={styles.flashcardText}>Example: {example}</Text>
-                        {audio ? (
-                            <TouchableOpacity onPress={()=>playAudio(audio)}>
-                                <Text style={styles.flashcardTextAudio}>🔊 Listen</Text>
-                            </TouchableOpacity>
-                        ) : null}
-                    </View>
-                ) : null}
+                        <ScrollView>
+                            <Text style={styles.flashcardTitle}>{details.word}</Text>
+                            <Text style={styles.flashcardText}>Meanings:</Text>
+                            {details.meaning.map((meaning, index) => (
+                                <Text key={index} style={styles.flashcardItem}>{index + 1}. {meaning}</Text>
+                            ))}
 
-                {error ? (
-                    <Text style={styles.error}>{error}</Text>
-                ) : null}
+                            <Text style={styles.flashcardText}>Pronunciation: {details.pronunciation}</Text>
+                            <Text style={styles.flashcardText}>Examples:</Text>
+                            {details.example.map((example, index) => (
+                                <Text key={index} style={styles.flashcardItem}>{index + 1}. {example}</Text>
+                            ))}
+
+                            {details.audio && (
+                                <TouchableOpacity onPress={() => playAudio(details.audio)}>
+                                    <Text style={styles.flashcardTextAudio}>🔊 Listen</Text>
+                                </TouchableOpacity>
+                            )}
+                        </ScrollView>
+                    </View>
+                )}
+
+                {details.error && (
+                    <Text style={styles.error}>{details.error}</Text>
+                )}
             </View>
         </SafeAreaView>
     );
@@ -135,8 +167,8 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        marginTop: 60, 
-        justifyContent: 'flex-start',
+        marginTop: 20,
+        width: '100%',
         paddingHorizontal: 20,
     },
     inputContainer: {
@@ -171,6 +203,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         elevation: 3,
         marginTop: 10,
+        justifyContent: 'center',
     },
     buttonText: {
         color: '#FFFFFF',
@@ -186,27 +219,35 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#CCCCCC',
         width: '100%',
+        flex: 1,
     },
     flashcardTitle: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
         color: '#333333',
     },
     flashcardText: {
+        fontSize: 18,
+        marginBottom: 10,
+        color: '#333333',
+    },
+    flashcardItem: {
         fontSize: 16,
         marginBottom: 5,
         color: '#333333',
+        marginLeft: 10,
     },
     flashcardTextAudio: {
-        fontSize: 16,
-        marginBottom: 5,
+        fontSize: 18,
         color: '#007BFF',
         textDecorationLine: 'underline',
+        marginTop: 10,
     },
     error: {
         marginTop: 20,
         color: 'red',
         fontSize: 16,
+        textAlign: 'center',
     },
 });
