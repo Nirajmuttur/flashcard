@@ -22,9 +22,7 @@ export default function App() {
 
         setIsLoading(true);
         try {
-            console.log(Config.BACKEND_URL)
             const response = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/generate/${details.word}`);
-            console.log(response)
             if (response.status === 200) {
                 const data = response.data.data;
                 const meanings = data.meaning
@@ -52,7 +50,6 @@ export default function App() {
                 });
             }
         } catch (error) {
-            console.log(error)
             setDetails({
                 ...details,
                 word: '',
