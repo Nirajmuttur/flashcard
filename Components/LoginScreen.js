@@ -3,8 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } fro
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function LoginScreen() {
-  const navigation = useNavigation();
-
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Welcome Back!</Text>

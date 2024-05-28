@@ -1,32 +1,55 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import React from 'react'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,Alert} from 'react-native';
+import {useState} from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios'
 const SignUp = () => {
+    const [user, setUser] = useState({
+        email:'',
+        password:'',
+        confirmPassword:''
+    })
+    const handleInputChange=(name,e)=>{
+        setUser({...user,[name]:e})
+    }
+    const handleSubmit = async () => {
+        if (!user.email || !user.password) {
+          Alert.alert('Validation Error', 'Email and Password are required.');
+          return;
+        }
+        if(user.password != user.confirmPassword){
+            Alert.alert('Validation Error', 'Passwords are not matching')
+        }
+    
+        try {
+          const res = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/create`, user);
+          if (res.status === 200) {
+            Alert.alert('Account Created Successfully');
+            navigation.navigate('LoginScreen');
+          }
+        } catch (error) {
+          console.error(error);
+          Alert.alert('Login Failed', 'Something went wrong');
+        }
+      };
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Welcome!</Text>
             <Text style={styles.subtitle}>Create Account</Text>
             <View style={styles.inputContainer}>
                 <Icon name="envelope" size={20} color="#888" style={styles.icon} />
-                <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" />
+                <TextInput name="email" style={styles.input} placeholder="Email" value={user.email} placeholderTextColor="#888" onChangeText={(e)=>handleInputChange('email',e)}/>
             </View>
             <View style={styles.inputContainer}>
                 <Icon name="lock" size={20} color="#888" style={styles.icon} />
-                <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
+                <TextInput style={styles.input} placeholder="Password" value={user.password} placeholderTextColor="#888" secureTextEntry onChangeText={(e)=>handleInputChange('password',e)}/>
             </View>
             <View style={styles.inputContainer}>
                 <Icon name="lock" size={20} color="#888" style={styles.icon} />
-                <TextInput style={styles.input} placeholder="Confirm Password" placeholderTextColor="#888" secureTextEntry />
+                <TextInput style={styles.input} placeholder="Confirm Password" value={user.confirmPassword} placeholderTextColor="#888" secureTextEntry onChangeText={(e)=>handleInputChange('confirmPassword',e)} />
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
-            <Text style={styles.orText}>Or Sign in with</Text>
-            <View style={styles.socialContainer}>
-                <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#DB4437' }]}>
-                    <Icon name="google" size={20} color="white" />
-                </TouchableOpacity>
-            </View>
         </SafeAreaView>
 
     )
