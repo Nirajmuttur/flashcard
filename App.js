@@ -25,14 +25,20 @@ function App() {
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} options={{
           headerShown: true,
-          headerTitle:'',
-          headerTintColor: "black",
-        }}/>
+          headerTitle: '',
+          headerTintColor: "#00ADB5",
+          headerStyle: {
+            backgroundColor: '#EEEEEE'
+          }
+        }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{
           headerShown: true,
-          headerTitle:'',
+          headerTitle: '',
           headerTintColor: "black",
-        }}/>
+          headerStyle: {
+            backgroundColor: '#EEEEEE'
+          }
+        }} />
         <Stack.Screen name="Main" component={MainTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
