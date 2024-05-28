@@ -1,62 +1,107 @@
-import { StyleSheet, View, Text, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+// screens/SignInScreen.js
+import React from 'react';
+import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function LoginScreen() {
+export default function SignInScreen({ navigation }) {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image source={require('./../assets/Flashcard_transparent.png')} style={styles.logo} />
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Sign in to BrightCard</Text>
       </View>
-      <TouchableOpacity
-        style={styles.googleButton}
-      >
-        <Text style={styles.buttonText}>Login with Google</Text>
+      <TouchableOpacity style={styles.socialButton}>
+        <Text style={styles.socialButtonText}>Log in with Google</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+      <TouchableOpacity style={styles.socialButton}>
+        <Text style={styles.socialButtonText}>Log in with Apple</Text>
+      </TouchableOpacity>
+      <Text style={styles.or}>or</Text>
+      <TextInput style={styles.input} placeholder="Email" />
+      <TextInput style={styles.input} placeholder="Password" secureTextEntry />
+      <View style={styles.rememberMeRow}>
+        <TouchableOpacity style={styles.checkbox} />
+        <Text style={styles.rememberMeText}>Remember me</Text>
+      </View>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Log in</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+        <Text style={styles.link}>Reset password</Text>
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <Text style={styles.link}>No account? Create one</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EEEEEE',
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  logoContainer: {
+  header: {
     alignItems: 'center',
-    marginBottom: 40
+    marginBottom: 40,
   },
   logo: {
-    height:400,
-    width:300,
-    marginBottom: 20,
+    fontSize: 50,
   },
   title: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#EEEEEE',
   },
-  tagline: {
+  socialButton: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    alignItems: 'center',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  socialButtonText: {
     fontSize: 16,
-    color: '#EEEEEE',
   },
-  googleButton: {
+  or: {
+    textAlign: 'center',
+    marginVertical: 20,
+    color: '#aaa',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  rememberMeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#00ADB5',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    elevation: 3,
+    marginBottom: 20,
   },
-  googleIcon: {
-    width: 24,
-    height: 24,
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
     marginRight: 10,
   },
+  rememberMeText: {
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#4a90e2',
+    padding: 15,
+    alignItems: 'center',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
   buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#fff',
+    fontSize: 16,
+  },
+  link: {
+    textAlign: 'center',
+    color: '#4a90e2',
+    marginBottom: 10,
   },
 });

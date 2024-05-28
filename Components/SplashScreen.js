@@ -1,18 +1,17 @@
-import { StyleSheet, Text, View, Button, TouchableOpacity,Image} from 'react-native'
-import {useEffect} from 'react'
-import { StackActions } from '@react-navigation/native';
-import { useNavigation } from '@react-navigation/native';
+
+import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native'
+import {useNavigation} from '@react-navigation/native'
 const SplashScreen = () => {
     const navigation = useNavigation();
-    useEffect(() => {
-        setTimeout(() => {
-            navigation.navigate('Home');
-          }, 2000);
-    }, [])
-    
     return (
         <View style={styles.container}>
-             <Image source={require('./../assets/Flashcard_transparent.png')} style={styles.splashImage}/>
+            <Image source={require('./../assets/Flashcard_transparent.png')} style={styles.splashImage} />
+            <TouchableOpacity style={styles.signin} onPress={()=>navigation.navigate('LoginScreen')}>
+                <Text style={styles.signinText}>Sign In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigation.navigate('SignUp')}>
+                <Text style={styles.link}>No account? Create one</Text>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -26,8 +25,26 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#EEEEEE',
     },
-    splashImage:{
-        height:350,
-        width:200
-    }
+    splashImage: {
+        height: 350,
+        width: 200
+    },
+    signin: {
+        backgroundColor: '#00ADB5',
+        paddingHorizontal: 120,
+        paddingVertical: 15,
+        borderRadius: 25,
+        elevation: 3,
+        marginBottom:20
+    },
+    signinText: {
+        fontSize: 20,
+        color: '#EEEEEE'
+    },
+    link: {
+        fontSize:16,
+        textAlign: 'center',
+        color: '#4a90e2',
+        marginBottom: 10,
+    },
 })

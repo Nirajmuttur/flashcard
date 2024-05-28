@@ -3,7 +3,7 @@ import { StyleSheet, View, TextInput, TouchableOpacity, Text, SafeAreaView, Acti
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { Audio } from 'expo-av';
-export default function App() {
+export default function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [details, setDetails] = useState({
         word: '',
@@ -90,6 +90,10 @@ export default function App() {
         setDetails({ ...details, word });
     };
 
+    const toggleBookmark = () => {
+        
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>BrightCard</Text>
@@ -119,7 +123,12 @@ export default function App() {
                 {details.meaning.length > 0 && (
                     <View style={styles.flashcard}>
                         <ScrollView>
-                            <Text style={styles.flashcardTitle}>{details.word}</Text>
+                            <View style={styles.titlebookMark}>
+                                <Text style={styles.flashcardTitle}>{details.word}</Text>
+                                <TouchableOpacity onPress={toggleBookmark}>
+                                    <Icon name="bookmark-outline" size={28} color="#00ADB5" />
+                                </TouchableOpacity>
+                            </View>
                             <Text style={styles.flashcardText}>Meanings:</Text>
                             {details.meaning.map((meaning, index) => (
                                 <Text key={index} style={styles.flashcardItem}>{index + 1}. {meaning}</Text>
@@ -217,6 +226,10 @@ const styles = StyleSheet.create({
         borderColor: '#CCCCCC',
         width: '100%',
         flex: 1,
+    },
+    titlebookMark:{
+        flexDirection: 'row',
+        justifyContent:'space-between'
     },
     flashcardTitle: {
         fontSize: 24,
