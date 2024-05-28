@@ -18,16 +18,21 @@ function App() {
         initialRouteName="SplashScreen"
         screenOptions={{
           headerMode: "screen",
-          headerTintColor: "white",
-          headerStyle: { backgroundColor: "#222831" },
           headerShown: false,
-          headerBackTitleVisible: false,
-          headerLeft: null,
+          headerBackTitleVisible: false
         }}
       >
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUp} />
+        <Stack.Screen name="LoginScreen" component={LoginScreen} options={{
+          headerShown: true,
+          headerTitle:'',
+          headerTintColor: "black",
+        }}/>
+        <Stack.Screen name="SignUp" component={SignUp} options={{
+          headerShown: true,
+          headerTitle:'',
+          headerTintColor: "black",
+        }}/>
         <Stack.Screen name="Main" component={MainTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>

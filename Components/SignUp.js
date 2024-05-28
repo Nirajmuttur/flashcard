@@ -3,7 +3,7 @@ import React from 'react'
 
 const SignUp = () => {
     return (
-        <SafeAreaView>
+        <SafeAreaView style={styles.container}>
             <View>
                 <Text>SignUp</Text>
             </View>
@@ -14,4 +14,10 @@ const SignUp = () => {
 
 export default SignUp
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    container:{
+        flex: 1,
+        backgroundColor: '#EEEEEE',
+
+    }
+})
