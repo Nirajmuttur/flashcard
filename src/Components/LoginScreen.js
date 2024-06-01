@@ -1,22 +1,55 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
+import { checkEmailVerification, login, logout } from '../service/authService';
+import { useNavigation } from '@react-navigation/native'
 export default function LoginScreen() {
+  const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState({
+    email: '',
+    password: ''
+  })
+  const handleInputChange = (name, e) => {
+    setUser({ ...user, [name]: e })
+  }
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const response = await login(user.email, user.password);
+
+      const isEmailVerified = await checkEmailVerification();
+      if (!isEmailVerified) {
+        Alert.alert('Email not verified', 'Please verify your email before logging in.');
+        await logout(); 
+      } else {
+        navigation.navigate('MainTabNavigator');
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      Alert.alert('Error', error.message);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Welcome Back!</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
       <View style={styles.inputContainer}>
         <Icon name="envelope" size={20} color="#888" style={styles.icon} />
-        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" />
+        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" onChangeText={(e) => handleInputChange('email', e)} />
       </View>
       <View style={styles.inputContainer}>
         <Icon name="lock" size={20} color="#888" style={styles.icon} />
-        <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
+        <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry onChangeText={(e) => handleInputChange('password', e)} />
       </View>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Sign in</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        {
+          isLoading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
+            <Text style={styles.buttonText}>Sign in</Text>
+        }
+
       </TouchableOpacity>
       <Text style={styles.orText}>Or Sign in with</Text>
       <View style={styles.socialContainer}>

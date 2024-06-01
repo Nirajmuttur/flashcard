@@ -1,40 +1,40 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,Alert} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,Alert, ActivityIndicator} from 'react-native';
 import {useState} from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios'
+import { createAccount } from '../service/authService';
+import { useNavigation } from '@react-navigation/native'
 const SignUp = () => {
+    const navigation = useNavigation();
+    const [isLoading, setIsLoading] = useState(false);
     const [user, setUser] = useState({
         email:'',
         password:'',
+        name:'',
         confirmPassword:''
     })
     const handleInputChange=(name,e)=>{
         setUser({...user,[name]:e})
     }
-    const handleSubmit = async () => {
-        if (!user.email || !user.password) {
-          Alert.alert('Validation Error', 'Email and Password are required.');
-          return;
-        }
-        if(user.password != user.confirmPassword){
-            Alert.alert('Validation Error', 'Passwords are not matching')
-        }
-    
+    const handleCreateAccount = async () => {
+        setIsLoading(true)
         try {
-          const res = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/create`, user);
-          if (res.status === 200) {
-            Alert.alert('Account Created Successfully');
-            navigation.navigate('LoginScreen');
-          }
+            const response = await createAccount(user.email, user.password, user.name);
+            Alert.alert('Account created', `Welcome, ${response.name}`);
+            navigation.navigate('LoginScreen')
         } catch (error) {
-          console.error(error);
-          Alert.alert('Login Failed', 'Something went wrong');
+            Alert.alert('Error', error.message);
         }
-      };
+        setIsLoading(false)
+    };
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Welcome!</Text>
             <Text style={styles.subtitle}>Create Account</Text>
+            <View style={styles.inputContainer}>
+                <Icon name="user" size={20} color="#888" style={styles.icon} />
+                <TextInput name="name" style={styles.input} placeholder="User Name" value={user.name} placeholderTextColor="#888" onChangeText={(e)=>handleInputChange('name',e)}/>
+            </View>
             <View style={styles.inputContainer}>
                 <Icon name="envelope" size={20} color="#888" style={styles.icon} />
                 <TextInput name="email" style={styles.input} placeholder="Email" value={user.email} placeholderTextColor="#888" onChangeText={(e)=>handleInputChange('email',e)}/>
@@ -47,8 +47,12 @@ const SignUp = () => {
                 <Icon name="lock" size={20} color="#888" style={styles.icon} />
                 <TextInput style={styles.input} placeholder="Confirm Password" value={user.confirmPassword} placeholderTextColor="#888" secureTextEntry onChangeText={(e)=>handleInputChange('confirmPassword',e)} />
             </View>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Sign Up</Text>
+            <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
+                {
+                    isLoading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
+                    <Text style={styles.buttonText}>Sign Up</Text>
+                }
+                
             </TouchableOpacity>
         </SafeAreaView>
 

@@ -5,7 +5,7 @@ const SplashScreen = () => {
     const navigation = useNavigation();
     return (
         <View style={styles.container}>
-            <Image source={require('./../assets/Flashcard_transparent.png')} style={styles.splashImage} />
+            <Image source={require('./../../assets/Flashcard_transparent.png')} style={styles.splashImage} />
             <TouchableOpacity style={styles.signin} onPress={() => navigation.navigate('LoginScreen')}>
                 <Text style={styles.signinText}>Sign In</Text>
             </TouchableOpacity>
