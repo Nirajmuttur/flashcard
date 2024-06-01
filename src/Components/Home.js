@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text, SafeAreaView, ActivityIndicator, ScrollView } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, Text, SafeAreaView, ActivityIndicator, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { Audio } from 'expo-av';
+import { generateFlashcard } from '../service/flashCardService';
+import { addBookmark } from '../service/bookMarkService';
+import {useAuth} from './../Provider/AuthContext'
 export default function Home() {
+    const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(false);
+    const [isBookmarking, setIsBookmarking] = useState(false);
     const [details, setDetails] = useState({
         word: '',
         meaning: [],
         pronunciation: '',
         example: [],
         audio: '',
-        error: ''
+        error: '',
+        bookmark:false
     });
 
     const fetchMeaningAndPronunciation = async () => {
@@ -22,33 +28,21 @@ export default function Home() {
 
         setIsLoading(true);
         try {
-            const response = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/generate/${details.word}`);
-            if (response.status === 200) {
-                const data = response.data.data;
-                const meanings = data.meaning
-                const examples = data.example
-                const pronunciation = data?.phonetics || 'Pronunciation not available';
-                const audio = data?.audio || '';
+            const response = await generateFlashcard(details.word)
 
-                setDetails({
-                    ...details,
-                    meaning: meanings,
-                    pronunciation,
-                    example: examples,
-                    audio,
-                    error: ''
-                });
-            } else {
-                setDetails({
-                    ...details,
-                    word: '',
-                    meaning: [],
-                    pronunciation: '',
-                    example: [],
-                    audio: '',
-                    error: 'Word not found.'
-                });
-            }
+            const meanings = response.meaning
+            const examples = response.example
+            const pronunciation = response?.phonetics || 'Pronunciation not available';
+            const audio = response?.audio || '';
+            setDetails({
+                ...details,
+                meaning: meanings,
+                pronunciation,
+                example: examples,
+                audio,
+                error: ''
+            });
+
         } catch (error) {
             setDetails({
                 ...details,
@@ -90,8 +84,24 @@ export default function Home() {
         setDetails({ ...details, word });
     };
 
-    const toggleBookmark = () => {
-        
+    const toggleBookmark = async() => {
+        setIsBookmarking(true)
+        const bookMarkDetails={
+            word: details.word,
+            meaning: details.meaning,
+            example: details.example,
+            audio: details.audio,
+            userid: user.$id,
+            phonetics: details.pronunciation
+        }
+        try {
+            const bookmark = await addBookmark(bookMarkDetails)
+            setDetails({...details,bookmark:true})
+        } catch (error) {
+            Alert.alert('Error', error.message);
+        }finally{
+            setIsBookmarking(false)
+        }
     };
 
     return (
@@ -126,7 +136,11 @@ export default function Home() {
                             <View style={styles.titlebookMark}>
                                 <Text style={styles.flashcardTitle}>{details.word}</Text>
                                 <TouchableOpacity onPress={toggleBookmark}>
-                                    <Icon name="bookmark-outline" size={28} color="#00ADB5" />
+                                {isBookmarking ? (
+                                        <ActivityIndicator size="small" color="#00ADB5" />
+                                    ) : (
+                                        <Icon name={details.bookmarked ? "bookmark" : "bookmark-outline"} size={28} color="#00ADB5" />
+                                    )}
                                 </TouchableOpacity>
                             </View>
                             <Text style={styles.flashcardText}>Meanings:</Text>
@@ -227,9 +241,9 @@ const styles = StyleSheet.create({
         width: '100%',
         flex: 1,
     },
-    titlebookMark:{
+    titlebookMark: {
         flexDirection: 'row',
-        justifyContent:'space-between'
+        justifyContent: 'space-between'
     },
     flashcardTitle: {
         fontSize: 24,
