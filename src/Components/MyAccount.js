@@ -38,7 +38,11 @@ const MyAccount = () => {
                         onPress={handleLogoutPress}
                         disabled={loading}
                     >
-                        <Text style={styles.logoutButtonText}>Logout</Text>
+                        {
+                            loading ? <ActivityIndicator size="small" color="#FFFFFF" />:
+                            <Text style={styles.logoutButtonText}>Logout</Text>
+                        }
+                       
                     </TouchableOpacity>
                 </>
             ) : (
