@@ -6,6 +6,7 @@ import { Audio } from 'expo-av';
 import { generateFlashcard } from '../service/flashCardService';
 import { addBookmark } from '../service/bookMarkService';
 import {useAuth} from './../Provider/AuthContext'
+import { Snackbar } from 'react-native-paper'; 
 export default function Home() {
     const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +20,7 @@ export default function Home() {
         error: '',
         bookmark:false
     });
+    const [showSnackbar, setShowSnackbar] = useState(false); 
 
     const fetchMeaningAndPronunciation = async () => {
         if (!details.word.trim()) {
@@ -87,6 +89,10 @@ export default function Home() {
         setDetails({ ...details, word });
     };
 
+    const showRefreshedSnackbar = () => {
+        setShowSnackbar(true); 
+    };
+
     const toggleBookmark = async() => {
         setIsBookmarking(true)
         const bookMarkDetails={
@@ -100,6 +106,7 @@ export default function Home() {
         try {
             const bookmark = await addBookmark(bookMarkDetails)
             setDetails({...details,bookmark:true})
+            showRefreshedSnackbar();
         } catch (error) {
             Alert.alert('Error', error.message);
         }finally{
@@ -169,6 +176,14 @@ export default function Home() {
                 {details.error && (
                     <Text style={styles.error}>{details.error}</Text>
                 )}
+                 <Snackbar
+                    visible={showSnackbar}
+                    duration={3000} 
+                    onDismiss={() => setShowSnackbar(false)}
+                    style={{ backgroundColor: '#222831' }} 
+                >
+                    Bookmarked
+                </Snackbar>
             </View>
         </SafeAreaView>
     );
