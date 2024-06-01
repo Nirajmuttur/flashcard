@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, SafeAreaView, Modal, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { fetchBookmarks } from '../service/bookMarkService';
 import { useAuth } from './../Provider/AuthContext'
@@ -9,7 +9,7 @@ export default function BookMarkScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const { user } = useAuth()
     const [bookmarks, setBookmarks] = useState([]);
-
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const openModal = (bookmark) => {
         setSelectedBookmark(bookmark);
         setModalVisible(true);
@@ -19,18 +19,26 @@ export default function BookMarkScreen() {
         setModalVisible(false);
         setSelectedBookmark(null);
     };
-    useEffect(() => {
-        const getBookmarks = async () => {
-            try {
-                const bookmark = await fetchBookmarks(user.$id)
-                setBookmarks(bookmark)
-            } catch (error) {
-                Alert.alert('Error', error.message);
-            }
+    
+    const getBookmarks = async () => {
+        try {
+            const bookmark = await fetchBookmarks(user.$id)
+            setBookmarks(bookmark)
+        } catch (error) {
+            Alert.alert('Error', error.message);
+        }finally{
+            setIsRefreshing(false);
         }
-        getBookmarks()
+    }
 
+    useEffect(() => {
+        getBookmarks()
     }, []);
+
+    const refreshBookmarks = () => {
+        setIsRefreshing(true); // Set refreshing state to true
+        getBookmarks();
+    };
 
     const renderBookmarkItem = (bookmark) => (
         <TouchableOpacity
@@ -67,7 +75,16 @@ export default function BookMarkScreen() {
             <Text style={styles.header}>Bookmarks</Text>
             <View style={styles.content}>
                 {bookmarks.length > 0 ? (
-                    <ScrollView style={styles.bookmarkList}>
+                    <ScrollView style={styles.bookmarkList}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={isRefreshing}
+                                onRefresh={refreshBookmarks}
+                                colors={['#00ADB5']}
+                                progressBackgroundColor="#FFFFFF"
+                            />
+                        }
+                    >
                         {bookmarks.map(bookmark => renderBookmarkItem(bookmark))}
                     </ScrollView>
                 ) : (

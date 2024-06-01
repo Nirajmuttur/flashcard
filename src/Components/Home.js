@@ -40,7 +40,8 @@ export default function Home() {
                 pronunciation,
                 example: examples,
                 audio,
-                error: ''
+                error: '',
+                bookmark:false
             });
 
         } catch (error) {
@@ -51,7 +52,8 @@ export default function Home() {
                 pronunciation: '',
                 example: [],
                 audio: '',
-                error: 'Error fetching the word meaning.'
+                error: 'Error fetching the word meaning.',
+                bookmark:false
             });
         } finally {
             setIsLoading(false);
@@ -65,7 +67,8 @@ export default function Home() {
             pronunciation: '',
             example: [],
             audio: '',
-            error: ''
+            error: '',
+            bookmark:false
         });
     };
 
@@ -139,7 +142,7 @@ export default function Home() {
                                 {isBookmarking ? (
                                         <ActivityIndicator size="small" color="#00ADB5" />
                                     ) : (
-                                        <Icon name={details.bookmarked ? "bookmark" : "bookmark-outline"} size={28} color="#00ADB5" />
+                                        <Icon name={details.bookmark ? "bookmark" : "bookmark-outline"} size={28} color="#00ADB5" />
                                     )}
                                 </TouchableOpacity>
                             </View>
