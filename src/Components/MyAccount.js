@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity, Alert, Image, ScrollView } from 'react-native';
 import { useAuth } from './../Provider/AuthContext';
-
+import { useNavigation } from '@react-navigation/native'
 const MyAccount = () => {
     const { user, handleLogout, loading } = useAuth();
-
+    const navigation = useNavigation();
     const handleLogoutPress = async () => {
         try {
             await handleLogout();
             Alert.alert('Success', 'You have been logged out.');
+            navigation.navigate('SplashScreen')
         } catch (error) {
             Alert.alert('Error', error.message);
         }
