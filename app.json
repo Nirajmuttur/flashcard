@@ -1,27 +1,33 @@
 {
   "expo": {
-    "name": "flashcard",
+    "name": "Flashcard",
     "slug": "flashcard",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Flashcard.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "scheme":"flashcard",
     "splash": {
       "image": "./assets/Flashcard.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "updates":{
+      "fallbackToCacheTimeout":0
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
+      "buildNumber":"1.0.0",
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/Flashcard.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "versionCode":1
     },
     "web": {
       "favicon": "./assets/favicon.png"
