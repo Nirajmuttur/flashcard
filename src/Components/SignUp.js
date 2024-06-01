@@ -4,9 +4,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios'
 import { createAccount } from '../service/authService';
 import { useNavigation } from '@react-navigation/native'
+import { useAuth } from '../Provider/AuthContext';
 const SignUp = () => {
+    const {handleCreateAccount,loading} = useAuth()
     const navigation = useNavigation();
-    const [isLoading, setIsLoading] = useState(false);
     const [user, setUser] = useState({
         email:'',
         password:'',
@@ -16,16 +17,14 @@ const SignUp = () => {
     const handleInputChange=(name,e)=>{
         setUser({...user,[name]:e})
     }
-    const handleCreateAccount = async () => {
-        setIsLoading(true)
+    const handleSubmit = async () => {
         try {
-            const response = await createAccount(user.email, user.password, user.name);
+            const response = await handleCreateAccount(user.email, user.password, user.name);
             Alert.alert('Account created', `Welcome, ${response.name}`);
             navigation.navigate('LoginScreen')
         } catch (error) {
             Alert.alert('Error', error.message);
         }
-        setIsLoading(false)
     };
     return (
         <SafeAreaView style={styles.container}>
@@ -47,9 +46,9 @@ const SignUp = () => {
                 <Icon name="lock" size={20} color="#888" style={styles.icon} />
                 <TextInput style={styles.input} placeholder="Confirm Password" value={user.confirmPassword} placeholderTextColor="#888" secureTextEntry onChangeText={(e)=>handleInputChange('confirmPassword',e)} />
             </View>
-            <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 {
-                    isLoading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
+                    loading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
                     <Text style={styles.buttonText}>Sign Up</Text>
                 }
                 

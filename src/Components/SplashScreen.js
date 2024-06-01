@@ -1,7 +1,7 @@
 
 import { StyleSheet, Text, View, Button, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { useAuth } from './../Provider/AurhContext'
+import { useAuth } from './../Provider/AuthContext'
 import { useEffect } from 'react'
 const SplashScreen = () => {
     const navigation = useNavigation();
@@ -11,7 +11,7 @@ const SplashScreen = () => {
             navigation.navigate('MainTabNavigator');
         }
 
-    }, [user, navigation]);
+    }, [user]);
 
     return (
         <View style={styles.container}>

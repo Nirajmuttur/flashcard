@@ -3,9 +3,10 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Aler
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { checkEmailVerification, login, logout } from '../service/authService';
 import { useNavigation } from '@react-navigation/native'
+import { useAuth } from '../Provider/AuthContext';
 export default function LoginScreen() {
+  const {handleLogin,handleLogout,loading} = useAuth()
   const navigation = useNavigation();
-  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState({
     email: '',
     password: ''
@@ -15,20 +16,17 @@ export default function LoginScreen() {
   }
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    try {
-      const response = await login(user.email, user.password);
 
+    try {
+      const response = await handleLogin(user.email, user.password);
       const isEmailVerified = await checkEmailVerification();
       if (!isEmailVerified) {
         Alert.alert('Email not verified', 'Please verify your email before logging in.');
-        await logout(); 
+        await handleLogout(); 
       } else {
         navigation.navigate('MainTabNavigator');
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
       Alert.alert('Error', error.message);
     }
   };
@@ -46,7 +44,7 @@ export default function LoginScreen() {
       </View>
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         {
-          isLoading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
+          loading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
             <Text style={styles.buttonText}>Sign in</Text>
         }
 

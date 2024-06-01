@@ -8,19 +8,11 @@ import LoginScreen from "./src/Components/LoginScreen";
 import SignUp from "./src/Components/SignUp";
 import MainTabNavigator from "./src/Components/MainTabNavigator"
 import SplashScreen from "./src/Components/SplashScreen";
-import { AuthProvider, useAuth } from "./src/Provider/AurhContext";
+import { AuthProvider, useAuth } from "./src/Provider/AuthContext";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 function AppNavigator() {
   const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
   return (
     <Stack.Navigator
       initialRouteName={user ? 'MainTabNavigator' : 'SplashScreen'}
@@ -30,8 +22,6 @@ function AppNavigator() {
         headerBackTitleVisible: false
       }}
     >
-
-
       <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
       <Stack.Screen name="SplashScreen" component={SplashScreen} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} options={{
