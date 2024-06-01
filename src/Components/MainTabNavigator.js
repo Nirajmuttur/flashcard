@@ -14,17 +14,15 @@ const MainTabNavigator = () => {
 
                     if (route.name === "Home") {
                         iconName = focused ? "home" : "home-outline";
-                    } else if (route.name === "Bookmarks") {
+                    } else if (route.name === "BookMark") {
                         iconName = focused ? "bookmark" : "bookmark-outline";
                     }
 
                     return <Icon name={iconName} size={size} color={color} />;
                 },
+                headerShown: false,
+                tabBarActiveTintColor: "#00ADB5"
             })}
-            tabBarOptions={{
-                activeTintColor: "#00ADB5",
-                inactiveTintColor: "gray",
-            }}
         >
             <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="BookMark" component={BookMarkScreen} />

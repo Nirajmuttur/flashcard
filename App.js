@@ -30,33 +30,26 @@ function AppNavigator() {
         headerBackTitleVisible: false
       }}
     >
-      {
-        user ? (
-          <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
-        ) : (
-          <>
-            <Stack.Screen name="SplashScreen" component={SplashScreen} />
-            <Stack.Screen name="LoginScreen" component={LoginScreen} options={{
-              headerShown: true,
-              headerTitle: '',
-              headerTintColor: "#00ADB5",
-              headerStyle: {
-                backgroundColor: '#EEEEEE'
-              }
-            }} />
-            <Stack.Screen name="SignUp" component={SignUp} options={{
-              headerShown: true,
-              headerTitle: '',
-              headerTintColor: "black",
-              headerStyle: {
-                backgroundColor: '#EEEEEE'
-              }
-            }} />
-          </>
-        )
-      }
 
 
+      <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
+      <Stack.Screen name="SplashScreen" component={SplashScreen} />
+      <Stack.Screen name="LoginScreen" component={LoginScreen} options={{
+        headerShown: true,
+        headerTitle: '',
+        headerTintColor: "#00ADB5",
+        headerStyle: {
+          backgroundColor: '#EEEEEE'
+        }
+      }} />
+      <Stack.Screen name="SignUp" component={SignUp} options={{
+        headerShown: true,
+        headerTitle: '',
+        headerTintColor: "black",
+        headerStyle: {
+          backgroundColor: '#EEEEEE'
+        }
+      }} />
     </Stack.Navigator>
   )
 }

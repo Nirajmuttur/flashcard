@@ -1,8 +1,18 @@
 
-import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, Button, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import { useAuth } from './../Provider/AurhContext'
+import { useEffect } from 'react'
 const SplashScreen = () => {
     const navigation = useNavigation();
+    const { user, loading } = useAuth();
+    useEffect(() => {
+        if (user) {
+            navigation.navigate('MainTabNavigator');
+        }
+
+    }, [user, navigation]);
+
     return (
         <View style={styles.container}>
             <Image source={require('./../../assets/Flashcard_transparent.png')} style={styles.splashImage} />

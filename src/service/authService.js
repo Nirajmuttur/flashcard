@@ -1,5 +1,15 @@
 import { account } from '../appwrite/config';
 import {ID} from 'appwrite'
+
+export const getCurrentUser = async () => {
+    try {
+        const user = await account.get();
+        return user;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const createAccount = async (email, password, name) => {
     try {
         const response = await account.create(ID.unique(), email, password, name);
@@ -14,7 +24,6 @@ export const createAccount = async (email, password, name) => {
 export const login = async (email, password) => {
     try {
         const response = await account.createEmailPasswordSession(email, password);
-        
         return response;
     } catch (error) {
         console.log(error)
