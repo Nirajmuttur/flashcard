@@ -84,13 +84,6 @@ const LoginScreen = () => {
                     </>
                 )}
             </Formik>
-
-            <Text style={styles.orText}>Or Sign in with</Text>
-            <View style={styles.socialContainer}>
-                <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#DB4437' }]}>
-                    <Icon name="google" size={20} color="white" />
-                </TouchableOpacity>
-            </View>
         </SafeAreaView>
     );
 };
