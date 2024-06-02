@@ -116,7 +116,7 @@ export default function Home() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.header}>BrightCard</Text>
+            <Text style={styles.header}>FlashCard</Text>
             <View style={styles.content}>
                 <View style={styles.inputContainer}>
                     <TextInput

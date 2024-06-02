@@ -15,6 +15,7 @@ export const createAccount = async (email, password, name) => {
         const response = await account.create(ID.unique(), email, password, name);
         await account.createEmailPasswordSession(email,password)
         const verification = await sendVerification();
+        await logout()
         return response;
     } catch (error) {
         throw error;
@@ -41,7 +42,7 @@ export const logout = async () => {
 
 export const sendVerification = async () => {
     try {
-        const response = await account.createVerification("http://localhost:3000/verify");
+        const response = await account.createVerification(String(process.env.EXPO_PUBLIC_APPWRITE_FUNCTION_URL));
         return response;
     } catch (error) {
         throw error;

@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getCurrentUser, login, createAccount, logout } from '../service/authService';
+import { getCurrentUser, login, createAccount, logout, checkEmailVerification } from '../service/authService';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [emailVerified, setEmailVerified] = useState(false)
 
     useEffect(() => {
         const checkUserSession = async () => {
@@ -26,8 +27,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             await login(email, password);
-            const currentUser = await getCurrentUser();
-            setUser(currentUser);
+            handleVerification()
         } catch (error) {
             throw error;
         } finally {
@@ -39,8 +39,6 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             await createAccount(email, password, name);
-            const currentUser = await getCurrentUser();
-            setUser(currentUser);
         } catch (error) {
             throw error;
         } finally {
@@ -60,9 +58,25 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const handleVerification =async()=>{
+        setLoading(true);
+        try {
+            const emailVerification = await checkEmailVerification()
+            if(emailVerification){
+                const currentUser = await getCurrentUser();
+                setUser(currentUser);
+                setEmailVerified(true)
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }
+
 
     return (
-        <AuthContext.Provider value={{ user, loading, handleCreateAccount,handleLogin,handleLogout}}>
+        <AuthContext.Provider value={{ user, loading, handleCreateAccount,handleLogin,handleLogout,emailVerified}}>
             {children}
         </AuthContext.Provider>
     );

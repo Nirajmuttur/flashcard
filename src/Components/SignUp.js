@@ -1,64 +1,126 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,Alert, ActivityIndicator} from 'react-native';
-import {useState} from 'react'
+import React from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import axios from 'axios'
-import { createAccount } from '../service/authService';
-import { useNavigation } from '@react-navigation/native'
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../Provider/AuthContext';
+
 const SignUp = () => {
-    const {handleCreateAccount,loading} = useAuth()
+    const { handleCreateAccount, loading } = useAuth();
     const navigation = useNavigation();
-    const [user, setUser] = useState({
-        email:'',
-        password:'',
-        name:'',
-        confirmPassword:''
-    })
-    const handleInputChange=(name,e)=>{
-        setUser({...user,[name]:e})
-    }
-    const handleSubmit = async () => {
+
+    const validationSchema = Yup.object().shape({
+        name: Yup.string().required('Name is required'),
+        email: Yup.string().email('Invalid email').required('Email is required'),
+        password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
+        confirmPassword: Yup.string()
+            .oneOf([Yup.ref('password'), null], 'Passwords must match')
+            .required('Confirm password is required'),
+    });
+
+    const handleInputChange = (name, value) => {
+        setUser({ ...user, [name]: value });
+    };
+
+    const handleSubmit = async (values) => {
         try {
-            const response = await handleCreateAccount(user.email, user.password, user.name);
-            Alert.alert('Account created', `Welcome, ${response.name}`);
-            navigation.navigate('LoginScreen')
+            const { email, password, name } = values;
+            const response = await handleCreateAccount(email, password, name);
+            Alert.alert('Account created', `Welcome, ${name}`);
+            navigation.navigate('LoginScreen');
         } catch (error) {
             Alert.alert('Error', error.message);
         }
     };
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Welcome!</Text>
             <Text style={styles.subtitle}>Create Account</Text>
-            <View style={styles.inputContainer}>
-                <Icon name="user" size={20} color="#888" style={styles.icon} />
-                <TextInput name="name" style={styles.input} placeholder="User Name" value={user.name} placeholderTextColor="#888" onChangeText={(e)=>handleInputChange('name',e)}/>
-            </View>
-            <View style={styles.inputContainer}>
-                <Icon name="envelope" size={20} color="#888" style={styles.icon} />
-                <TextInput name="email" style={styles.input} placeholder="Email" value={user.email} placeholderTextColor="#888" onChangeText={(e)=>handleInputChange('email',e)}/>
-            </View>
-            <View style={styles.inputContainer}>
-                <Icon name="lock" size={20} color="#888" style={styles.icon} />
-                <TextInput style={styles.input} placeholder="Password" value={user.password} placeholderTextColor="#888" secureTextEntry onChangeText={(e)=>handleInputChange('password',e)}/>
-            </View>
-            <View style={styles.inputContainer}>
-                <Icon name="lock" size={20} color="#888" style={styles.icon} />
-                <TextInput style={styles.input} placeholder="Confirm Password" value={user.confirmPassword} placeholderTextColor="#888" secureTextEntry onChangeText={(e)=>handleInputChange('confirmPassword',e)} />
-            </View>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                {
-                    loading ? <ActivityIndicator size="small" color="#FFFFFF" /> :
-                    <Text style={styles.buttonText}>Sign Up</Text>
-                }
-                
-            </TouchableOpacity>
+
+            <Formik
+                initialValues={{ email: '', password: '', name: '', confirmPassword: '' }}
+                onSubmit={handleSubmit}
+                validationSchema={validationSchema}
+            >
+                {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                    <>
+                        <View style={styles.inputContainer}>
+                            <Icon name="user" size={20} color="#888" style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="User Name"
+                                value={values.name}
+                                placeholderTextColor="#888"
+                                onChangeText={handleChange('name')}
+                                onBlur={handleBlur('name')}
+                            />
+                        </View>
+                        {touched.name && errors.name && (
+                            <Text style={styles.errorText}>{errors.name}</Text>
+                        )}
+
+                        <View style={styles.inputContainer}>
+                            <Icon name="envelope" size={20} color="#888" style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Email"
+                                value={values.email}
+                                placeholderTextColor="#888"
+                                onChangeText={handleChange('email')}
+                                onBlur={handleBlur('email')}
+                            />
+                        </View>
+                        {touched.email && errors.email && (
+                            <Text style={styles.errorText}>{errors.email}</Text>
+                        )}
+
+                        <View style={styles.inputContainer}>
+                            <Icon name="lock" size={20} color="#888" style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Password"
+                                value={values.password}
+                                placeholderTextColor="#888"
+                                secureTextEntry
+                                onChangeText={handleChange('password')}
+                                onBlur={handleBlur('password')}
+                            />
+                        </View>
+                        {touched.password && errors.password && (
+                            <Text style={styles.errorText}>{errors.password}</Text>
+                        )}
+
+                        <View style={styles.inputContainer}>
+                            <Icon name="lock" size={20} color="#888" style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Confirm Password"
+                                value={values.confirmPassword}
+                                placeholderTextColor="#888"
+                                secureTextEntry
+                                onChangeText={handleChange('confirmPassword')}
+                                onBlur={handleBlur('confirmPassword')}
+                            />
+                        </View>
+                        {touched.confirmPassword && errors.confirmPassword && (
+                            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+                        )}
+
+                        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                            {loading ? (
+                                <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                                <Text style={styles.buttonText}>Sign Up</Text>
+                            )}
+                        </TouchableOpacity>
+                    </>
+                )}
+            </Formik>
         </SafeAreaView>
-
-    )
-}
-
-export default SignUp
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -66,24 +128,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#EEEEEE',
         padding: 20,
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 30,
-    },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         color: '#222831',
         marginBottom: 10,
         marginTop: 10,
-        padding: 10
+        padding: 10,
     },
     subtitle: {
         fontSize: 16,
         color: '#222831',
         marginBottom: 5,
-        padding: 11
+        padding: 11,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -92,11 +149,12 @@ const styles = StyleSheet.create({
         borderColor: '#222831',
         borderWidth: 1,
         borderRadius: 10,
-        marginBottom: 20,
+        marginTop: 10,
         paddingHorizontal: 15,
         paddingVertical: 5,
         marginRight: 20,
-        marginLeft: 10
+        marginLeft: 10,
+        marginBottom:0
     },
     icon: {
         marginRight: 10,
@@ -105,37 +163,27 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 50,
         color: '#222831',
-        paddingRight: 10
+        paddingRight: 10,
     },
     button: {
         backgroundColor: '#00ADB5',
         paddingVertical: 15,
         borderRadius: 10,
         alignItems: 'center',
-        marginBottom: 30,
+        marginTop: 30,
         marginRight: 20,
-        marginLeft: 10
+        marginLeft: 10,
     },
     buttonText: {
         color: 'white',
         fontSize: 18,
         fontWeight: 'bold',
     },
-    orText: {
-        color: '#222831',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    socialContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-    socialButton: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginHorizontal: 10,
+    errorText: {
+        fontSize: 12,
+        color: 'red',
+        marginLeft: 15,
     },
 });
+
+export default SignUp;
