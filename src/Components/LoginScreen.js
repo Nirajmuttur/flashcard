@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 import { checkEmailVerification } from '../service/authService';
 
 const LoginScreen = () => {
-    const { handleLogin, handleLogout, loading,emailVerified } = useAuth();
+    const { emailVerified,handleLogin, handleLogout, loading,handleVerification } = useAuth();
     const navigation = useNavigation();
 
     const validationSchema = Yup.object().shape({
@@ -19,10 +19,9 @@ const LoginScreen = () => {
     const handleLoginSubmit = async (values) => {
         const { email, password } = values;
         try {
-            const response = await handleLogin(email, password);
+            await handleLogin(email, password);
             if (!emailVerified) {
                 Alert.alert('Email not verified', 'Please verify your email before logging in.');
-                await handleLogout();
             } else {
                 navigation.navigate('MainTabNavigator');
             }

@@ -7,11 +7,11 @@ const SplashScreen = () => {
     const navigation = useNavigation();
     const { user, loading } = useAuth();
     useEffect(() => {
-        if (user) {
+        if (user && !loading) {
             navigation.navigate('MainTabNavigator');
         }
 
-    }, [user]);
+    }, [user, loading]);
 
     return (
         <View style={styles.container}>

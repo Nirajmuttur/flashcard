@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, Modal, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { StyleSheet, View, Text, SafeAreaView, Modal, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { fetchBookmarks } from '../service/bookMarkService';
+import { fetchBookmarks, removeBookmark } from '../service/bookMarkService';
 import { useAuth } from './../Provider/AuthContext'
-
+import { Audio } from 'expo-av';
 export default function BookMarkScreen() {
     const [selectedBookmark, setSelectedBookmark] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const { user } = useAuth()
     const [bookmarks, setBookmarks] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [isAudioLoading, setIsAudioLoading] = useState(false);
     const openModal = (bookmark) => {
         setSelectedBookmark(bookmark);
         setModalVisible(true);
@@ -19,14 +21,16 @@ export default function BookMarkScreen() {
         setModalVisible(false);
         setSelectedBookmark(null);
     };
-    
+
     const getBookmarks = async () => {
+        setLoading(true);
         try {
             const bookmark = await fetchBookmarks(user.$id)
             setBookmarks(bookmark)
         } catch (error) {
             Alert.alert('Error', error.message);
-        }finally{
+        } finally {
+            setLoading(false);
             setIsRefreshing(false);
         }
     }
@@ -36,19 +40,42 @@ export default function BookMarkScreen() {
     }, []);
 
     const refreshBookmarks = () => {
-        setIsRefreshing(true); // Set refreshing state to true
+        setIsRefreshing(true);
         getBookmarks();
+    };
+    const playAudio = async (audioUri) => {
+        if (audioUri) {
+            setIsAudioLoading(true);
+            try {
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: audioUri },
+                    { shouldPlay: true }
+                );
+                sound.setOnPlaybackStatusUpdate((status) => {
+                    if (!status.isLoaded) {
+                        setIsAudioLoading(false); // Stop audio loading if there is an error
+                    } else if (status.didJustFinish) {
+                        setIsAudioLoading(false); // Stop audio loading when playback finishes
+                    }
+                });
+                await sound.playAsync();
+            } catch (error) {
+                Alert.alert('Error', 'Error playing audio.');
+                setIsAudioLoading(false);
+            }
+
+        }
     };
 
     const renderBookmarkItem = (bookmark) => (
         <TouchableOpacity
-            key={bookmark.id}
+            key={bookmark.$id}
             style={styles.bookmarkItem}
             onPress={() => openModal(bookmark)}
         >
             <View style={styles.bookmarkHeader}>
                 <Text style={styles.bookmarkWord}>{bookmark.word}</Text>
-                <TouchableOpacity onPress={() => handleRemoveBookmark(bookmark.id)}>
+                <TouchableOpacity onPress={() => handleRemoveBookmark(bookmark.$id)}>
                     <Icon name="bookmark" size={28} color="#00ADB5" />
                 </TouchableOpacity>
             </View>
@@ -63,18 +90,32 @@ export default function BookMarkScreen() {
                     {bookmark.example.join(', ')}
                 </Text>
             </View>
+
+
+
         </TouchableOpacity>
     );
 
-    const handleRemoveBookmark = (id) => {
-        setBookmarks((prevBookmarks) => prevBookmarks.filter(bookmark => bookmark.id !== id));
+    const handleRemoveBookmark = async (id) => {
+        setLoading(true);
+        try {
+            const bookmark = await removeBookmark(id)
+            setBookmarks((prevBookmarks) => prevBookmarks.filter(bookmark => bookmark.$id !== id));
+        } catch (error) {
+            Alert.alert('Error', error.message);
+        } finally {
+            setLoading(false);
+            setIsRefreshing(false);
+        }
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>Bookmarks</Text>
             <View style={styles.content}>
-                {bookmarks.length > 0 ? (
+                {loading ? (
+                    <ActivityIndicator size="large" color="#00ADB5" />
+                ) : bookmarks.length > 0 ? (
                     <ScrollView style={styles.bookmarkList}
                         refreshControl={
                             <RefreshControl
@@ -112,10 +153,18 @@ export default function BookMarkScreen() {
                                 {selectedBookmark?.example.map((example, index) => (
                                     <Text key={index} style={styles.modalItemText}>{index + 1}. {example}</Text>
                                 ))}
+                                <TouchableOpacity onPress={() => playAudio(selectedBookmark.audio)}>
+                                    {isAudioLoading ? (
+                                        <ActivityIndicator size="small" color="#00ADB5" />
+                                    ) : (
+                                        <Text style={styles.flashcardTextAudio}>🔊 Listen</Text>
+                                    )}
+                                </TouchableOpacity>
                             </ScrollView>
                             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                                 <Text style={styles.closeButtonText}>Close</Text>
                             </TouchableOpacity>
+
                         </View>
                     </SafeAreaView>
                 </Modal>
@@ -230,4 +279,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    flashcardTextAudio: {
+        fontSize: 18,
+        color: '#007BFF',
+        textDecorationLine: 'underline',
+        marginTop: 10,
+    }
 });

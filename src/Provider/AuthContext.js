@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 const currentUser = await getCurrentUser();
                 setUser(currentUser);
+                setEmailVerified(currentUser.emailVerification)
             } catch (error) {
                 setUser(null);
             } finally {
@@ -27,7 +28,15 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             await login(email, password);
-            handleVerification()
+            const isVerified = await checkEmailVerification();
+            setEmailVerified(isVerified);
+            if (isVerified) {
+                const currentUser = await getCurrentUser();
+                setUser(currentUser);
+            } else {
+                await logout();
+                throw new Error('Email not verified');
+            }
         } catch (error) {
             throw error;
         } finally {
@@ -58,21 +67,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const handleVerification =async()=>{
-        setLoading(true);
-        try {
-            const emailVerification = await checkEmailVerification()
-            if(emailVerification){
-                const currentUser = await getCurrentUser();
-                setUser(currentUser);
-                setEmailVerified(true)
-            }
-        } catch (error) {
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    }
 
 
     return (

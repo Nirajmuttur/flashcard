@@ -5,12 +5,13 @@ import axios from 'axios';
 import { Audio } from 'expo-av';
 import { generateFlashcard } from '../service/flashCardService';
 import { addBookmark } from '../service/bookMarkService';
-import {useAuth} from './../Provider/AuthContext'
-import { Snackbar } from 'react-native-paper'; 
+import { useAuth } from './../Provider/AuthContext'
+import { Snackbar } from 'react-native-paper';
 export default function Home() {
-    const {user} = useAuth()
+    const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false);
     const [isBookmarking, setIsBookmarking] = useState(false);
+    const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [details, setDetails] = useState({
         word: '',
         meaning: [],
@@ -18,9 +19,9 @@ export default function Home() {
         example: [],
         audio: '',
         error: '',
-        bookmark:false
+        bookmark: false
     });
-    const [showSnackbar, setShowSnackbar] = useState(false); 
+    const [showSnackbar, setShowSnackbar] = useState(false);
 
     const fetchMeaningAndPronunciation = async () => {
         if (!details.word.trim()) {
@@ -43,7 +44,7 @@ export default function Home() {
                 example: examples,
                 audio,
                 error: '',
-                bookmark:false
+                bookmark: false
             });
 
         } catch (error) {
@@ -55,7 +56,7 @@ export default function Home() {
                 example: [],
                 audio: '',
                 error: 'Error fetching the word meaning.',
-                bookmark:false
+                bookmark: false
             });
         } finally {
             setIsLoading(false);
@@ -70,32 +71,53 @@ export default function Home() {
             example: [],
             audio: '',
             error: '',
-            bookmark:false
+            bookmark: false
         });
     };
 
     const playAudio = async (audioUri) => {
         if (audioUri) {
-            const { sound } = await Audio.Sound.createAsync(
-                { uri: audioUri },
-                { shouldPlay: true }
-            );
-            await sound.playAsync();
+            setIsAudioLoading(true);
+            try {
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: audioUri },
+                    { shouldPlay: true }
+                );
+                sound.setOnPlaybackStatusUpdate((status) => {
+                    if (!status.isLoaded) {
+                        setIsAudioLoading(false); // Stop audio loading if there is an error
+                    } else if (status.didJustFinish) {
+                        setIsAudioLoading(false); // Stop audio loading when playback finishes
+                    }
+                });
+                await sound.playAsync();
+            } catch (error) {
+                Alert.alert('Error', 'Error playing audio.');
+                setIsAudioLoading(false);
+            }
+
         }
     };
 
     const handleWordChange = (word) => {
-        clearInput();
-        setDetails({ ...details, word });
+        setDetails({
+            meaning: [],
+            pronunciation: '',
+            example: [],
+            audio: '',
+            error: '',
+            bookmark: false,
+            word
+        });
     };
 
     const showRefreshedSnackbar = () => {
-        setShowSnackbar(true); 
+        setShowSnackbar(true);
     };
 
-    const toggleBookmark = async() => {
+    const toggleBookmark = async () => {
         setIsBookmarking(true)
-        const bookMarkDetails={
+        const bookMarkDetails = {
             word: details.word,
             meaning: details.meaning,
             example: details.example,
@@ -105,11 +127,11 @@ export default function Home() {
         }
         try {
             const bookmark = await addBookmark(bookMarkDetails)
-            setDetails({...details,bookmark:true})
+            setDetails({ ...details, bookmark: true })
             showRefreshedSnackbar();
         } catch (error) {
             Alert.alert('Error', error.message);
-        }finally{
+        } finally {
             setIsBookmarking(false)
         }
     };
@@ -122,6 +144,7 @@ export default function Home() {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter a word"
+                        placeholderTextColor="#888"
                         value={details.word}
                         onChangeText={handleWordChange}
                     />
@@ -146,7 +169,7 @@ export default function Home() {
                             <View style={styles.titlebookMark}>
                                 <Text style={styles.flashcardTitle}>{details.word}</Text>
                                 <TouchableOpacity onPress={toggleBookmark}>
-                                {isBookmarking ? (
+                                    {isBookmarking ? (
                                         <ActivityIndicator size="small" color="#00ADB5" />
                                     ) : (
                                         <Icon name={details.bookmark ? "bookmark" : "bookmark-outline"} size={28} color="#00ADB5" />
@@ -165,8 +188,12 @@ export default function Home() {
                             ))}
 
                             {details.audio && (
-                                <TouchableOpacity onPress={() => playAudio(details.audio)}>
-                                    <Text style={styles.flashcardTextAudio}>🔊 Listen</Text>
+                                <TouchableOpacity onPress={() => playAudio(details.audio)} disabled={isAudioLoading}>
+                                    {isAudioLoading ? (
+                                        <ActivityIndicator size="small" color="#00ADB5" />
+                                    ) : (
+                                        <Text style={styles.flashcardTextAudio}>🔊 Listen</Text>
+                                    )}
                                 </TouchableOpacity>
                             )}
                         </ScrollView>
@@ -176,11 +203,11 @@ export default function Home() {
                 {details.error && (
                     <Text style={styles.error}>{details.error}</Text>
                 )}
-                 <Snackbar
+                <Snackbar
                     visible={showSnackbar}
-                    duration={3000} 
+                    duration={3000}
                     onDismiss={() => setShowSnackbar(false)}
-                    style={{ backgroundColor: '#222831' }} 
+                    style={{ backgroundColor: '#222831' }}
                 >
                     Bookmarked
                 </Snackbar>

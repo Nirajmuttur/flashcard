@@ -25,6 +25,7 @@ export const createAccount = async (email, password, name) => {
 export const login = async (email, password) => {
     try {
         const response = await account.createEmailPasswordSession(email, password);
+        console.log(response)
         return response;
     } catch (error) {
         console.log(error)
