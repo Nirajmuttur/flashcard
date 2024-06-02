@@ -65,11 +65,13 @@ To run this project, you will need to add the following environment variables to
 
 ## Screenshots
 
-![Splash_Screen](screenshots/Splash_Screen.PNG)
-![Login_Screen](screenshots/Login_Screen.jpeg)
-![SignUp_Screen](screenshots/SignUp_Screen.PNG)
-![Home_Screen](screenshots/Home_Screen.PNG)
-![Bookmark_Screen](screenshots/Bookmark_Screen.PNG)
-![Bookmark_Detail_Screen](screenshots/Bookmark_Detail_Screen.PNG)
-![MyAccount_Screen](screenshots/MyAccount_Screen.PNG)
+<p align="left">
+   <img src="screenshots/Splash_Screen.PNG" width="350" title="Splash_Screen">
+    <img src="screenshots/Login_Screen.jpeg" width="350" title="Login_Screen">
+   <img src="screenshots/SignUp_Screen.PNG" width="350" title="SignUp_Screen">
+   <img src="screenshots/Home_Screen.PNG"  width="350" title="Home_Screen">
+   <img src="screenshots/Bookmark_Screen.PNG" width="350" title="Bookmark_Screen">
+  <img src="screenshots/Bookmark_Detail_Screen.PNG" width="350" title="Bookmark_Detail_Screen">
+  <img src="screenshots/MyAccount_Screen.PNG" width="350" title="MyAccount_Screen.PNG">
+</p>
 
